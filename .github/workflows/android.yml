@@ -25,35 +25,47 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
 
-      - name: Check Gradle tasks
+      - name: Pre-build Check
         run: |
-          chmod +x ./gradlew
-          ./gradlew tasks --no-daemon 2>&1 | grep -i "assemble\|build\|install"
+          echo "=== SDK Check ==="
+          ls -la $ANDROID_HOME/platforms/
+          ls -la $ANDROID_HOME/build-tools/
+          echo ""
+          echo "=== Project Structure ==="
+          find . -name "build.gradle*" -type f
+          ls -la app/src/main/
 
       - name: Build Debug APK
         run: |
           chmod +x ./gradlew
-          ./gradlew assembleDebug --no-daemon 2>&1
-
-      - name: Find APK
+          ./gradlew assembleDebug --no-daemon --info 2>&1 | tee build_output.log
+          
+      - name: Debug Build Output
         run: |
-          echo "=== Searching for APK ==="
+          echo "=== Build Output Log (last 200 lines) ==="
+          tail -200 build_output.log
+          echo ""
+          echo "=== Looking for APK ==="
           find . -name "*.apk" -type f 2>/dev/null
           echo ""
-          echo "=== Build outputs ==="
-          ls -laR app/build/outputs/ 2>/dev/null | head -50
-          echo ""
-          echo "=== APK file check ==="
+          echo "=== APK Directory ==="
+          ls -laR app/build/outputs/ 2>/dev/null || echo "No outputs directory"
+
+      - name: Upload APK
+        if: success()
+        run: |
           if [ -f app/build/outputs/apk/debug/app-debug.apk ]; then
+            echo "Uploading APK..."
             ls -la app/build/outputs/apk/debug/app-debug.apk
-            echo "APK FOUND!"
           else
-            echo "APK NOT FOUND!"
+            echo "APK not found"
+            exit 1
           fi
 
-      - name: Upload Debug APK
+      - name: Upload Artifact
+        if: success()
         uses: actions/upload-artifact@v3
         with:
-          name: FileVault-debug.apk
+          name: app-debug.apk
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 7

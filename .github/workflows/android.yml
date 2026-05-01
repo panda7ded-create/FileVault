@@ -30,9 +30,22 @@ jobs:
           chmod +x ./gradlew
           ./gradlew assembleDebug --no-daemon
 
-      - name: Upload Debug APK
-        uses: actions/upload-artifact@v3
-        with:
-          name: file-vault-debug.apk
-          path: app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 7
+      - name: List build outputs
+        run: |
+          echo "=== Build directory ==="
+          ls -la app/build/outputs/
+          ls -la app/build/outputs/apk/
+          ls -la app/build/outputs/apk/debug/
+
+      - name: Upload APK
+        run: |
+          cd app/build/outputs/apk/debug/
+          ls -la
+          if [ -f app-debug.apk ]; then
+            echo "Uploading app-debug.apk..."
+            curl -s -o /dev/null -w "%{http_code}" -X POST \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Content-Type: application/octet-stream" \
+              "https://uploads.github.com/repos/panda7ded-create/FileVault/actions/artifacts?filename=app-debug.apk&content_type=application%2Fvnd.android.package-archive" \
+              --data-binary @app-debug.apk
+          fi

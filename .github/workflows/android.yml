@@ -25,38 +25,14 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
 
-      - name: Display environment
-        run: |
-          echo "JAVA_HOME: $JAVA_HOME"
-          echo "ANDROID_HOME: $ANDROID_HOME"
-          echo "ANDROID_SDK_ROOT: $ANDROID_SDK_ROOT"
-          ls -la $ANDROID_HOME/platforms/ 2>/dev/null || echo "No platforms"
-          ls -la $ANDROID_HOME/build-tools/ 2>/dev/null || echo "No build-tools"
-
-      - name: Build with debug output
+      - name: Build Debug APK
         run: |
           chmod +x ./gradlew
-          cat settings.gradle.kts
-          cat app/build.gradle.kts
-          echo ""
-          echo "=== Starting build ==="
-          ./gradlew tasks --no-daemon 2>&1 | head -50
-          echo ""
-          echo "=== Building ==="
-          ./gradlew assembleDebug --no-daemon --debug 2>&1 | tail -100
-
-      - name: Find APK
-        run: |
-          echo "=== All files in project ==="
-          find . -type f -name "*.apk" 2>/dev/null
-          echo ""
-          echo "=== Build directory ==="
-          ls -laR app/build/ 2>/dev/null | head -100
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v3
         with:
-          name: FileVault-debug.apk
+          name: file-vault-debug.apk
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 7
-        if: success()

@@ -28,11 +28,27 @@ jobs:
       - name: Build Debug APK
         run: |
           chmod +x ./gradlew
-          ./gradlew clean assembleDebug --no-daemon 2>&1
+          ./gradlew clean assembleDebug --no-daemon
+
+      - name: Verify APK Exists
+        id: check-apk
+        run: |
+          echo "=== Checking for APK ==="
+          if [ -f app/build/outputs/apk/debug/app-debug.apk ]; then
+            echo "APK_FOUND=true" >> $GITHUB_OUTPUT
+            echo "APK size: $(stat -c%s app/build/outputs/apk/debug/app-debug.apk) bytes"
+            ls -la app/build/outputs/apk/debug/app-debug.apk
+          else
+            echo "APK_FOUND=false" >> $GITHUB_OUTPUT
+            echo "APK NOT FOUND!"
+            find . -name "*.apk" -type f 2>/dev/null || echo "No APK files found"
+            ls -laR app/build/outputs/ 2>/dev/null || echo "No outputs directory"
+          fi
 
       - name: Upload Debug APK
+        if: steps.check-apk.outputs.APK_FOUND == 'true'
         uses: actions/upload-artifact@v3
         with:
-          name: file-vault-debug.apk
+          name: FileVault-${{ github.run_number }}.apk
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 7

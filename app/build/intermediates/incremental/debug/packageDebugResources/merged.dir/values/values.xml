@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorAccent">#FF6B6B</color>
+    <color name="colorBackground">#F5F5F5</color>
+    <color name="colorDivider">#E0E0E0</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorOnSurface">#333333</color>
+    <color name="colorPrimary">#6C63FF</color>
+    <color name="colorPrimaryDark">#5A52D5</color>
+    <color name="colorSurface">#FFFFFF</color>
+    <color name="colorTextPrimary">#333333</color>
+    <color name="colorTextSecondary">#777777</color>
+    <style name="Theme.FileVault" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+</resources>

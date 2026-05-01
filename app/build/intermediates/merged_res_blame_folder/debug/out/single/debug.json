@@ -1,0 +1,30 @@
+[
+    {
+        "merged": "com.filevault.app-merged_res-32:/layout_item_file.xml.flat",
+        "source": "com.filevault.app-main-34:/layout/item_file.xml"
+    },
+    {
+        "merged": "com.filevault.app-merged_res-32:/xml_provider_paths.xml.flat",
+        "source": "com.filevault.app-main-34:/xml/provider_paths.xml"
+    },
+    {
+        "merged": "com.filevault.app-merged_res-32:/drawable_icon_bg.xml.flat",
+        "source": "com.filevault.app-main-34:/drawable/icon_bg.xml"
+    },
+    {
+        "merged": "com.filevault.app-merged_res-32:/drawable_ext_badge_bg.xml.flat",
+        "source": "com.filevault.app-main-34:/drawable/ext_badge_bg.xml"
+    },
+    {
+        "merged": "com.filevault.app-merged_res-32:/drawable_search_bg.xml.flat",
+        "source": "com.filevault.app-main-34:/drawable/search_bg.xml"
+    },
+    {
+        "merged": "com.filevault.app-merged_res-32:/layout_activity_main.xml.flat",
+        "source": "com.filevault.app-main-34:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.filevault.app-merged_res-32:/menu_file_menu.xml.flat",
+        "source": "com.filevault.app-main-34:/menu/file_menu.xml"
+    }
+]

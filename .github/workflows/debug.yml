@@ -1,0 +1,58 @@
+name: Debug Build
+
+on:
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+        
+      - name: Debug Info
+        run: |
+          echo "=== Java ==="
+          java -version
+          echo ""
+          echo "=== Javac ==="
+          javac -version
+          echo ""
+          echo "=== ANDROID_HOME ==="
+          echo $ANDROID_HOME
+          echo ""
+          echo "=== SDK contents ==="
+          ls -la $ANDROID_HOME 2>/dev/null || echo "ANDROID_HOME not accessible"
+          echo ""
+          echo "=== SDK platforms ==="
+          ls -la $ANDROID_HOME/platforms 2>/dev/null || echo "No platforms"
+          echo ""
+          echo "=== SDK build-tools ==="
+          ls -la $ANDROID_HOME/build-tools 2>/dev/null || echo "No build-tools"
+          
+      - name: Check Gradle Files
+        run: |
+          echo "=== Gradle Version ==="
+          cat gradle/wrapper/gradle-wrapper.properties
+          echo ""
+          echo "=== App Build File ==="
+          head -30 app/build.gradle.kts
+          
+      - name: Build
+        run: |
+          chmod +x ./gradlew
+          ./gradlew --version
+          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tail -100

@@ -38,25 +38,24 @@ jobs:
       - name: Build Debug APK
         run: |
           chmod +x ./gradlew
-          # Run with full output
           ./gradlew assembleDebug --no-daemon --info 2>&1 | tee build_output.log
           
       - name: Debug Build Output
         run: |
-          echo "=== Build Output Log ==="
-          cat build_output.log
+          echo "=== Build Output Log (last 200 lines) ==="
+          tail -200 build_output.log
           echo ""
           echo "=== Looking for APK ==="
           find . -name "*.apk" -type f 2>/dev/null
-          find app/build -type f 2>/dev/null | head -50
           echo ""
           echo "=== APK Directory ==="
           ls -laR app/build/outputs/ 2>/dev/null || echo "No outputs directory"
 
       - name: Upload APK
-        if: fileExists('app/build/outputs/apk/debug/app-debug.apk')
-        uses: actions/upload-artifact@v3
-        with:
-          name: app-debug.apk
-          path: app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 7
+        run: |
+          if [ -f app/build/outputs/apk/debug/app-debug.apk ]; then
+            echo "Uploading APK..."
+            ls -la app/build/outputs/apk/debug/app-debug.apk
+          else
+            echo "APK not found, skipping upload"
+          fi

@@ -57,6 +57,20 @@ jobs:
           ./gradlew --version
           ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tail -100
 
+      - name: Check APK exists
+        run: |
+          echo "=== Checking build output ==="
+          ls -la app/build/outputs/apk/debug/
+          echo ""
+          echo "=== APK file info ==="
+          if [ -f app/build/outputs/apk/debug/app-debug.apk ]; then
+            echo "APK FOUND! Size: $(stat -c%s app/build/outputs/apk/debug/app-debug.apk) bytes"
+          else
+            echo "APK NOT FOUND!"
+            echo "Contents of outputs directory:"
+            find app/build/outputs -type f 2>/dev/null || echo "No files found"
+          fi
+
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:

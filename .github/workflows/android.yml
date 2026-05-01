@@ -3,8 +3,6 @@ name: Build APK
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 env:
@@ -27,44 +25,22 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
 
-      - name: Debug Info
-        run: |
-          echo "=== Java ==="
-          java -version 2>&1
-          echo ""
-          echo "=== ANDROID_HOME ==="
-          echo $ANDROID_HOME
-          echo ""
-          echo "=== SDK platforms ==="
-          ls -la $ANDROID_HOME/platforms 2>/dev/null || echo "No platforms"
-          echo ""
-          echo "=== SDK build-tools ==="
-          ls -la $ANDROID_HOME/build-tools 2>/dev/null || echo "No build-tools"
-          echo ""
-          echo "=== Cached Gradle ==="
-          ls -la ~/.gradle/caches 2>/dev/null | head -10
-
-      - name: Cache Gradle packages
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-v1-${{ hashFiles('**/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-v1-
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
-
       - name: Build Debug APK
         run: |
-          ./gradlew --version
-          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1
+          chmod +x ./gradlew
+          chmod +x gradlew
+          ./gradlew clean assembleDebug --no-daemon 2>&1
+
+      - name: Debug Output
+        if: always()
+        run: |
+          echo "=== Build output ==="
+          find app/build -name "*.apk" 2>/dev/null || echo "No APK found"
+          ls -laR app/build/outputs 2>/dev/null || echo "No outputs"
 
       - name: Upload APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
-          name: FileVault-debug.apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: app-debug.apk
+          path: app/build/outputs/apk/debug/
           retention-days: 7

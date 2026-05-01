@@ -25,22 +25,38 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
 
+      - name: Pre-build Check
+        run: |
+          echo "=== SDK Check ==="
+          ls -la $ANDROID_HOME/platforms/
+          ls -la $ANDROID_HOME/build-tools/
+          echo ""
+          echo "=== Project Structure ==="
+          find . -name "build.gradle*" -type f
+          ls -la app/src/main/
+
       - name: Build Debug APK
         run: |
           chmod +x ./gradlew
-          chmod +x gradlew
-          ./gradlew clean assembleDebug --no-daemon 2>&1
-
-      - name: Debug Output
-        if: always()
+          # Run with full output
+          ./gradlew assembleDebug --no-daemon --info 2>&1 | tee build_output.log
+          
+      - name: Debug Build Output
         run: |
-          echo "=== Build output ==="
-          find app/build -name "*.apk" 2>/dev/null || echo "No APK found"
-          ls -laR app/build/outputs 2>/dev/null || echo "No outputs"
+          echo "=== Build Output Log ==="
+          cat build_output.log
+          echo ""
+          echo "=== Looking for APK ==="
+          find . -name "*.apk" -type f 2>/dev/null
+          find app/build -type f 2>/dev/null | head -50
+          echo ""
+          echo "=== APK Directory ==="
+          ls -laR app/build/outputs/ 2>/dev/null || echo "No outputs directory"
 
       - name: Upload APK
+        if: fileExists('app/build/outputs/apk/debug/app-debug.apk')
         uses: actions/upload-artifact@v3
         with:
           name: app-debug.apk
-          path: app/build/outputs/apk/debug/
+          path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 7

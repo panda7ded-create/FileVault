@@ -7,8 +7,6 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  ANDROID_HOME: /opt/android-sdk
-  ANDROID_SDK_ROOT: /opt/android-sdk
 
 jobs:
   build:
@@ -27,22 +25,45 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
 
-      - name: Debug Environment
+      - name: Pre-build Check
         run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
-          ls -la $ANDROID_HOME/
+          echo "=== SDK Check ==="
           ls -la $ANDROID_HOME/platforms/
           ls -la $ANDROID_HOME/build-tools/
+          echo ""
+          echo "=== Project Structure ==="
+          find . -name "build.gradle*" -type f
+          ls -la app/src/main/
 
       - name: Build Debug APK
         run: |
           chmod +x ./gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon --info 2>&1 | tee build_output.log
 
-      - name: Upload Debug APK
+      - name: Debug Build Output
+        run: |
+          echo "=== Build Output Log (last 200 lines) ==="
+          tail -200 build_output.log
+          echo ""
+          echo "=== Looking for APK ==="
+          find . -name "*.apk" -type f 2>/dev/null
+          echo ""
+          echo "=== APK Directory ==="
+          ls -laR app/build/outputs/ 2>/dev/null || echo "No outputs directory"
+
+      - name: Upload APK
+        run: |
+          if [ -f app/build/outputs/apk/debug/app-debug.apk ]; then
+            echo "Uploading APK..."
+            ls -la app/build/outputs/apk/debug/app-debug.apk
+          else
+            echo "APK not found"
+            exit 1
+          fi
+
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: FileVault-debug.apk
+          name: app-debug.apk
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 7

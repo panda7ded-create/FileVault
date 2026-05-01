@@ -39,17 +39,9 @@ jobs:
         run: |
           chmod +x ./gradlew
           ./gradlew assembleDebug --no-daemon --info 2>&1 | tee build_output.log
-          echo "EXIT_CODE=$?" >> $GITHUB_ENV
 
       - name: Debug Build Output
-        if: always()
         run: |
-          echo "=== Build Exit Code ==="
-          echo $EXIT_CODE
-          echo ""
-          echo "=== Build Output Log (last 300 lines) ==="
-          tail -300 build_output.log
-          echo ""
           echo "=== Looking for APK ==="
           find . -name "*.apk" -type f 2>/dev/null
           echo ""
@@ -58,9 +50,12 @@ jobs:
           echo ""
           echo "=== app/build directory ==="
           ls -la app/build/ 2>/dev/null || echo "No build directory"
+          echo ""
+          echo "=== build_output.log tail ==="
+          tail -100 build_output.log
 
       - name: Upload Artifact
-        if: success() && fileExists('app/build/outputs/apk/debug/app-debug.apk')
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: app-debug.apk
